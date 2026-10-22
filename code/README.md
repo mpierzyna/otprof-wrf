@@ -1,95 +1,121 @@
-# OTProf Deep-Learning Pipeline
+# OTProf code: dataset pipeline, SQF-H model, paper figures
 
-This is a standalone extract of the Squeezeformer model used to predict optical-turbulence (Cn²) profiles from coarse atmospheric state. It bundles the model/training/analysis code, and the supporting `otprof` package.
+Everything needed to build the dataset from the WRF runs in [`../data`](../data), train and run the height-aware
+Squeezeformer (SQF-H), and reproduce the figures and score tables of the paper.
 
-The data and trained model checkpoints are available on [Zenodo](https://zenodo.org/records/20733692) and need to be downloaded manually.
+The processed datasets, the trained models (checkpoints and fitted scalers) and the predictions are on
+[Zenodo](https://zenodo.org/records/20733692).
 
 ## Layout
 
 ```
-.
-├── data/                     # NetCDF datasets (see "Data" below)
-│   ├── wrf_highres.nc        # high-resolution WRF profiles (targets)
-│   ├── wrf_lowres.nc         # WRF interpolated to ERA5 pressure levels (inputs)
-│   ├── era5_pl.nc            # ERA5 pressure-level fields
-│   └── era5_sfc.nc           # ERA5 surface fields
-├── otprof/                   # core library: data pipelines, datasets, transforms, losses
-├── research_tools/           # vendored subset of an internal utility library
-│   ├── ot/                   # optical-turbulence integrals (r0, scint. index, …)
-│   └── misc_tools/           # YAML config (de)serialization + HTML reporter
-├── experiments.py            # experiment definitions (model + data config)
-├── leap_sqf.py               # Squeezeformer model + building blocks
-├── lit.py                    # LightningModule wrappers
-├── train_sqf_decoupled.py    # training entry point
-├── predict_decoupled.py      # prediction / reference-profile entry point
-├── model_analysis.py / model_plotting.py   # evaluation + HTML report generation
-└── pyproject.toml
+code/
+├── dataset/                 # DVC pipeline: WRF post-processing output + ERA5 -> datasets
+│   ├── dvc.yaml, params.yaml
+│   ├── step_0_link_wrf.py           link ../data/<domain>/wrf/sim_*/4_postproc/wrfout*_cn2.nc
+│   ├── step_1_download_era5.py      ERA5 pressure levels + surface from the ARCO ERA5 store
+│   ├── step_2a_align_era5_wrf.py    spatial / temporal alignment of ERA5 and WRF
+│   ├── step_3a_make_features.py     gradients, wind, W71 surface CT2, astroclimate parameters
+│   ├── step_3b_filter_cn2.py        discard invalid / extreme Cn2 profiles
+│   ├── step_4c_interpolate_wrf_era5pl.py  WRF -> ERA5 pressure levels (WRF PL inputs)
+│   └── data/<domain>/       # outputs: 1_raw/ 2_aligned/ 3_features/ 4_features_interp/
+├── src/otprof/              # package
+│   ├── pipelines/           # data pipelines: loading, height features, splits, scalers
+│   ├── model.py             # SQF-H model
+│   ├── lit.py               # LightningModule (loss, optimizer)
+│   ├── experiments.py       # the three experiments of the paper
+│   ├── predict.py           # inference, ERA5 input swap, HV+W71 reference, output quantile mapping
+│   └── base.py, datasets.py, transform.py, losses.py, logging.py, types.py
+├── src/research_tools/      # vendored subset: optical-turbulence integrals, HV profile, YAML config, HTML report
+├── scripts/
+│   ├── train.py             # train wrf_pl, wrf_native, era5_pl_direct on nl
+│   ├── predict_nl.py        # nl 2017 test predictions + nl output QM
+│   ├── predict_canaries.py  # zero-shot Canary Islands predictions + output QM
+│   └── predict_era5.py      # predictions from ERA5 for any time and location
+├── paper/
+│   ├── analysis.py          # loading of the predictions, metrics, structure functions
+│   └── figures.py           # all figures and score tables -> paper/plots/
+└── runs/                    # (not in git) models/<experiment>/, preds/{nl, canaries/<group>}/
 ```
 
 ## Setup
 
-Requires Python ≥ 3.12. With [uv](https://docs.astral.sh/uv/):
+Requires [uv](https://docs.astral.sh/uv/). From `code/`:
 
 ```bash
-uv venv && uv pip install -e .
+uv sync
 ```
 
-or with pip:
+This installs the `otprof` package (editable) with the pinned model stack and DVC. All commands below run
+from `code/`. A GPU is used for training and prediction if available.
+
+The WRF campaigns in [`../data`](../data) use their own environment (the repository root project with
+[`wrf-massive`](https://github.com/mpierzyna/wrf-massive)), see the READMEs there.
+
+## 1. Dataset
+
+Domains: `nl` (Netherlands, 2017-2020, training) and `canaries` (Canary Islands, one 5-day run per month of
+2017, out of domain). After running the WRF campaign of a domain (`../data/<domain>/wrf`, post-processing
+stage included):
 
 ```bash
-python -m venv .venv && . .venv/bin/activate
-pip install -e .
+dvc repro                                # all stages, all domains
+dvc repro 'make_features@canaries'       # one stage of one domain (and what it depends on)
 ```
 
-## Running
+ERA5 is read anonymously from the [ARCO ERA5](https://github.com/google-research/arco-era5) store on Google
+Cloud. The model reads per domain `3_features/{wrf_filtered,era5_pl,era5_sfc}.nc` and
+`4_features_interp/wrf_filtered_era5pl.nc`. To skip the pipeline, place the files from Zenodo there.
 
-Run the scripts from this directory so the local modules and packages
-(`otprof`, `research_tools`, `experiments`, `lit`, …) are importable. The data
-files are located relative to the `otprof` package, so the working directory does
-not affect data loading.
+## 2. Models
+
+| experiment       | input -> output                                    | run dir                    |
+|------------------|----------------------------------------------------|----------------------------|
+| `wrf_pl`         | WRF on ERA5 pressure levels -> native WRF (decoupled training; ERA5 PL at inference) | `runs/models/wrf_pl` |
+| `wrf_native`     | native WRF -> native WRF (control)                 | `runs/models/wrf_native`   |
+| `era5_pl_direct` | ERA5 PL -> native WRF (no decoupling, ablation)    | `runs/models/era5_pl_direct` |
+
+Train on nl (2019-2020 train, 2018 validation, 2017 test):
 
 ```bash
-# Train a model (edit __main__ to select the experiment)
-python train_sqf_decoupled.py
-
-# Predict with a trained checkpoint (edit the paths in __main__ first)
-python predict_decoupled.py
+uv run python scripts/train.py
 ```
 
-`train_sqf_decoupled.py` writes checkpoints and the serialized experiment to
-`lightning_logs/version_*/`. `predict_decoupled.py` reads a trained model from a
-`lightning_logs/version_*` directory and writes predictions to `saved_models/`.
+or put the trained models from Zenodo into `runs/models/`. Each run dir holds `checkpoints/` (the five
+best by validation loss; prediction uses the best), `data_pipeline/` (config and fitted scalers),
+`exp_config.yml` and `hparams.yaml`. `wrf_pl` also holds the fitted nl output quantile mapping
+(`oqm_lcn2.joblib`, written by `scripts/predict_nl.py`).
 
-## Pretrained models
+## 3. Predictions
 
-The trained checkpoints for the three experiments discussed in the paper are
-bundled under `lightning_logs/`. Each directory holds the top-5 checkpoints (by
-validation loss), the serialized data pipeline, and the experiment config:
-
-| experiment (`get_exp` name) | directory                  | description                                  |
-| --------------------------- | -------------------------- | -------------------------------------------- |
-| `wrf_native`                | `lightning_logs/version_176` | native WRF grid → WRF                       |
-| `wrf_pl`                    | `lightning_logs/version_175` | WRF on ERA5 pressure levels → WRF           |
-| `era5_pl_direct`            | `lightning_logs/version_179` | ERA5 pressure levels → WRF (direct)         |
-
-To predict with a bundled model, point `predict_decoupled.predict` at the matching
-experiment and directory, e.g.:
-
-```python
-import pathlib, experiments, predict_decoupled
-predict_decoupled.predict(
-    exp=experiments.get_exp("wrf_native"),
-    model_path=pathlib.Path("lightning_logs/version_176"),
-    out_dir=pathlib.Path("saved_models/preds_wrf_native"),
-    out_basename="wrfnative",
-)
+```bash
+uv run python scripts/predict_nl.py         # -> runs/preds/nl/
+uv run python scripts/predict_canaries.py   # -> runs/preds/canaries/{A,B,C}/ (needs the nl predictions)
 ```
 
-The best checkpoint is selected automatically from each directory by validation
-score. The experiment (and its scalers) are rebuilt from the bundled data, so the
-datasets above must be present.
+`predict_nl.py` predicts the nl test year with every model, the decoupled model fed with ERA5 PL, the
+Hufnagel-Valley reference (HV+W71), and fits the bulk lcn2 output quantile mapping (nl-oQM) on the
+ERA5-driven predictions of the training years. `predict_canaries.py` runs the nl model zero-shot on the
+three Canary Islands month groups and applies the nl-oQM and the canaries oQM (fit on one group, applied to
+the two others). Existing predictions are skipped.
 
-## Data
+## 4. Figures
 
-The datasets are NetCDF files covering 2017–2020 (2019–2020 train, 2018
-validation, 2017 test). They need to be manually downloaded from [Zenodo](https://zenodo.org/records/20733692).
+```bash
+uv run python paper/figures.py              # -> paper/plots/
+```
+
+`NL_SUBSAMPLE` in `paper/figures.py` subsamples the nl test set for quick previews (1 for the paper).
+
+## 5. Predictions from ERA5 for your own times and locations
+
+```bash
+uv run python scripts/predict_era5.py       # -> runs/preds/era5/sqfh_era5.nc
+```
+
+Set the locations, times, output heights and whether to apply the nl-oQM at the top of the script. It reads ERA5
+for the nearest grid points directly from the ARCO store and needs only `runs/models/wrf_pl/` (no dataset). The output
+holds the lcn2, QKE, TSQ and EL_PBL profiles (time, location, height), the nl-oQM corrected lcn2, and r0 and lsi2.
+Every requested time step downloads the global ERA5 fields (~0.7 GB), so keep the time range short. Two differences
+to the paper setup: the terrain height input is ERA5's (training used the WRF terrain), and outside the nl training
+domain (lat 50.25-54.0, lon 2.75-8.25) the model runs zero-shot, for which the script warns.

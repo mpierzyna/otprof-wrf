@@ -1,0 +1,19 @@
+# Per-domain configuration of the DVC `foreach` pipeline (dvc.yaml).
+#
+# Each domain maps to dataset/data/<domain>/ holding its own 1_raw .. 4_features_interp tree, and to the WRF
+# campaign in data/<domain>/wrf/ of this repository.
+#
+# - area:    ERA5 spatial subset for download (step_1). ERA5 latitude is descending, so lat_max > lat_min.
+#            The ARCO ERA5 store uses the 0..360 longitude convention (canaries: 340..350); step_2a
+#            converts back to WRF's -180..180.
+# - crop:    outer WRF cells cropped per side to avoid edge effects (step_2a).
+# - dist_th: ERA5<->WRF nearest-neighbour distance threshold in degrees (step_2a).
+domains:
+  nl:
+    area: {lon_min: 2, lon_max: 9, lat_max: 55, lat_min: 49}
+    crop: 3
+    dist_th: 0.02
+  canaries:
+    area: {lon_min: 340, lon_max: 350, lat_max: 31, lat_min: 25}
+    crop: 5
+    dist_th: 0.02

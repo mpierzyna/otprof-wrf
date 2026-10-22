@@ -4,7 +4,9 @@ Code accompanying the publication
 
 > Pierzyna, Maximilian, et al. “OTProf: Estimating High-Resolution Profiles of Optical Turbulence ($C_n^2$) from Reanalysis Using Deep Learning.” arXiv:2604.09346, arXiv, 10 Apr. 2026. arXiv.org, https://doi.org/10.48550/arXiv.2604.09346.
 
-This repository covers the two main parts of the project:
+The repository covers the whole chain from the WRF simulations to the figures of the paper:
 
-1. **Dataset generation** using the Weather Research and Forecasting model (WRF). The [`wrf-massive`](https://github.com/mpierzyna/wrf-massive) package is used to orchestrate WRF runs to generate one year of high-resolution WRF data for training as detailed in [`data/nl/wrf`](data/nl/wrf). The final processed training dataset is available on [Zenodo](https://zenodo.org/records/20733692).
-2. **Deep learning pipeline**. The PyTorch pipeline to train the model is contained in [`code`](code). The trained models and a snapshot of the code is also available on[Zenodo](https://zenodo.org/records/20733692).
+1. **WRF simulations** ([`data`](data)). The [`wrf-massive`](https://github.com/mpierzyna/wrf-massive) package orchestrates the WRF runs that generate the high-resolution training data over the Netherlands ([`data/nl/wrf`](data/nl/wrf), 2017-2020) and the out-of-domain test data over the Canary Islands ([`data/canaries/wrf`](data/canaries/wrf), 2017). The repository root is the uv project of these campaigns.
+2. **Dataset, model and paper figures** ([`code`](code), its own uv project). A DVC pipeline turns the post-processed WRF output and ERA5 into the training and evaluation datasets; the height-aware Squeezeformer (SQF-H) is trained on WRF interpolated to ERA5 pressure levels and applied to ERA5; the paper figures are generated from its predictions. See [`code/README.md`](code/README.md).
+
+The processed datasets, the trained models and the predictions are available on [Zenodo](https://zenodo.org/records/20733692).
