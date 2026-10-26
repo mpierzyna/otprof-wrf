@@ -180,11 +180,3 @@ pyrightconfig.json
 
 # Ignore grib files
 *.grb
-
-# OTProf: models, predictions and figures (published on Zenodo), dataset outputs (DVC)
-/code/runs/
-/code/paper/plots/
-/code/dataset/data/*/1_raw
-/code/dataset/data/*/2_aligned
-/code/dataset/data/*/3_features
-/code/dataset/data/*/4_features_interp

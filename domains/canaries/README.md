@@ -1,9 +1,9 @@
 # WRF simulation — Canary Islands
 
 Workspace to run twelve 5-day WRF simulations (one per month of 2017) over the Canary Islands using
-[`wrf_massive`](https://github.com/mpierzyna/wrf-massive). Forcing is downloaded from the Copernicus
-Climate Data Store (CDS) or the TU Delft CERRA mirror; stages run locally (chaos) or split across DelftBlue (WPS) and
-Snellius (WRF + post-proc).
+[`wrf_massive`](https://github.com/mpierzyna/wrf-massive). This is the out-of-domain test of OTProf: a
+subtropical island domain with steep terrain, never seen in training. Forcing comes from the TU Delft CERRA mirror;
+WPS runs on DelftBlue, WRF and the post-processing on Snellius.
 
 ## Domain & grid
 
@@ -36,7 +36,10 @@ pipeline stages below.
 | Cumulus | Kain–Fritsch (option 1) |
 | Urban | disabled |
 
-## Forcing data (CDS)
+## Forcing data
+
+The simulations were forced from the Copernicus Climate Data Store (CDS); the current pipelines pull the same files
+from the TU Delft CERRA mirror (`tudelft:staff-umbrella/HBaki/CERRA`, file list in `CERRA_files.txt.gz`).
 
 Lateral boundary conditions come from **CERRA reanalysis** (3-hourly), with **ERA5** filling the fields CERRA
 does not carry. WPS ungribs both and metgrid merges them (`fg_name = 'ERA5','CERRA'`, CERRA takes precedence).
@@ -83,8 +86,6 @@ ln -sf env_<machine>.yaml env.yaml
 
 | Machine | File | Pipeline | Purpose |
 |---|---|---|---|
-| `chaos` | `env_chaos.yaml` | `p_default` | Full pipeline, forcing from TU Delft CERRA mirror |
-| `chaos` | `env_chaos_cds.yaml` | `p_cds` | Full pipeline, forcing from CDS |
 | `delftblue` | `env_delftblue.yaml` | `p_preproc` | Pull CERRA from mirror + WPS (dmpar, 4 tasks) |
 | `snellius` | `env_snellius.yaml` | `p_snellius` | WRF (32 MPI tasks, 12 h) + Cn² post-proc on scratch |
 

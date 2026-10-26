@@ -1,7 +1,7 @@
 [project]
-name = "OTProf"
-version = "0.1.0"
-description = "Add your description here"
+name = "otprof-wrf"
+version = "0.2.0"
+description = "WRF setups to generate high-resolution Cn2 mesoscale simulations"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []

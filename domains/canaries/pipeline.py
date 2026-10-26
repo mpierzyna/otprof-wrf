@@ -1,8 +1,7 @@
 """Pipeline for a single 5-day WRF run over the Canary Islands.
 
-Forcing comes either directly from the Copernicus CDS (CERRA + ERA5, `p_cds`) or from the TU Delft CERRA mirror
-(`p_default`). On HPC, WPS pre-processing runs on DelftBlue (`p_preproc`) and WRF + post-processing on Snellius
-(`p_snellius`); the active pipeline is selected via `env.yaml`.
+Forcing comes from the TU Delft CERRA mirror. WPS pre-processing runs on DelftBlue (`p_preproc`) and WRF +
+post-processing on Snellius (`p_snellius`); the active pipeline is selected via `env.yaml`.
 """
 
 import datetime
@@ -118,8 +117,7 @@ if env["machine"] == "delftblue":
 if env["machine"] == "snellius":
     # For Snellius: run WRF and postproc with more ressources.
     # Domain size is comparable to the NL campaign (200x125 vs. 144x192), where 32 cores took ~9h per 5.5 sim days.
-    # tmp-dir behaviour is configured per substage. Copies, so the shared `_wrf`/`_cn2` instances used by
-    # `p_default` keep their defaults.
+    # tmp-dir behaviour is configured per substage. Copies, so the shared `_wrf`/`_cn2` instances keep their defaults.
     TMP_ROOT = pathlib.Path("/scratch-shared/mpierzyna/")
     _wrf_tmp = _wrf.model_copy(
         update={

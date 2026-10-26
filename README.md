@@ -1,12 +1,50 @@
-# OTProf: estimating high-resolution profiles of optical turbulence ($C_n^2$) from reanalysis using deep learning
+# OTProf-WRF
 
-Code accompanying the publication
+Simulate horizontal and vertical profiles of atmospheric (optical) turbulence with the
+[Weather Research and Forecasting (WRF) model](https://github.com/wrf-model/wrf). The simulations are orchestrated by [`wrf-massive`](https://github.com/mpierzyna/wrf-massive),
+which allows to parameterize WRF simulations and their entire pipeline (forcing download, WPS, 
+WRF, Cn2 postprocessing).
+
+The domains [`nl`](./domains/nl/) and [`canaries`](./domains/canaries/) are used in
 
 > Pierzyna, Maximilian, et al. “OTProf: Estimating High-Resolution Profiles of Optical Turbulence ($C_n^2$) from Reanalysis Using Deep Learning.” arXiv:2604.09346, arXiv, 10 Apr. 2026. arXiv.org, https://doi.org/10.48550/arXiv.2604.09346.
 
-The repository covers the whole chain from the WRF simulations to the figures of the paper:
+The full model code accompanying the OTProf publication can be found [here](https://github.com/mpierzyna/otprof).
 
-1. **WRF simulations** ([`data`](data)). The [`wrf-massive`](https://github.com/mpierzyna/wrf-massive) package orchestrates the WRF runs that generate the high-resolution training data over the Netherlands ([`data/nl/wrf`](data/nl/wrf), 2017-2020) and the out-of-domain test data over the Canary Islands ([`data/canaries/wrf`](data/canaries/wrf), 2017). The repository root is the uv project of these campaigns.
-2. **Dataset, model and paper figures** ([`code`](code), its own uv project). A DVC pipeline turns the post-processed WRF output and ERA5 into the training and evaluation datasets; the height-aware Squeezeformer (SQF-H) is trained on WRF interpolated to ERA5 pressure levels and applied to ERA5; the paper figures are generated from its predictions. See [`code/README.md`](code/README.md).
 
-The processed datasets, the trained models and the predictions are available on [Zenodo](https://zenodo.org/records/20733692).
+## Setup
+
+1. Clone with the [`wrf-massive`](https://github.com/mpierzyna/wrf-massive) submodule:
+   ```bash
+   git clone --recurse-submodules git@github.com:mpierzyna/otprof-wrf.git
+   # or, in an existing clone
+   git submodule update --init submodules/wrf-massive
+   ```
+2. Create the Python environment (Python 3.12, [uv](https://docs.astral.sh/uv/)). `wrf-massive` is installed
+   editable; its `wrf-python` dependency needs a working `gfortran`.
+   ```bash
+   uv sync
+   ```
+3. Provide compiled WPS and WRF (v4.5) and the WPS geographical data. Either use an existing installation or build
+   the copies that `wrf-massive` carries as optional submodules (`submodules/wrf-massive/submodules/{WPS,WRF}`).
+   Their paths are set per machine in `domains/<domain>/env_<machine>.yaml`.
+4. Access to the forcing: the CERRA (and ERA5) grib files are pulled with `rclone` from the TU Delft mirror, so an
+   `rclone` remote named `tudelft` is needed.
+
+## Usage
+
+Each domain is a self-contained `wrf-massive` workspace; run everything from its directory. See the domain READMEs
+for the pipelines and machines.
+
+```bash
+cd domains/nl
+ln -sf env_<machine>.yaml env.yaml                       # selects the machine paths and the pipeline
+
+uv run python cli.py init-sims simulations.py sims_1y   # (re)create the sim_*/ dirs and simulation.yaml
+uv run python cli.py run --stages=wps,wrf sim_2017-01-01 # run stages locally (all stages if omitted)
+uv run python cli.py submit -s wrf -j slurm_<machine>.job.sh sim_2017-01-01   # or submit them to SLURM
+```
+
+Stage names are those of the pipeline selected in `env.yaml` (`pipeline.py`), e.g. for the full `nl` pipeline
+`cerra`, `wps`, `cerra_gc`, `wrf`, `cn2` (Cn2 post-processing) and `sim_done`. Finished stages are marked with
+`.done` files and skipped on re-runs. The final output of a simulation is the compressed NetCDF in `sim_*/4_postproc/`.

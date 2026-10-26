@@ -1,6 +1,8 @@
 # WRF simulation campaign — Netherlands domain
 
-Workspace to generate ~1 year of WRF data over the Netherlands using [`wrf_massive`](https://github.com/mpierzyna/wrf-massive).
+Workspace to generate one year of WRF data over the Netherlands using [`wrf_massive`](https://github.com/mpierzyna/wrf-massive).
+This is the training domain of OTProf: the 365 days are spread over 2017–2020 (see below), and the post-processed
+Cn² profiles together with ERA5 make up the training, validation and in-domain test data.
 
 ## Domain & grid
 
@@ -83,22 +85,28 @@ ln -sf env_<machine>.yaml env.yaml
 
 | Machine | File | Pipeline | Purpose |
 |---|---|---|---|
-| `turbulence` | `env_turbulence.yaml` | `p_preproc` | WPS preprocessing (SSD tmp dir) |
-| `chaos` | `env_chaos.yaml` | `p_default` | Full pipeline |
+| `chaos` | `env_chaos.yaml` | `p_default` | Full pipeline: `cerra`, `wps`, `cerra_gc`, `wrf`, `cn2`, `sim_done` |
+| `turbulence` | `env_turbulence.yaml` | `p_preproc` | Pull CERRA + WPS (SSD tmp dir) |
+| `delftblue` | `env_delftblue.yaml` | `p_preproc` | Pull CERRA + WPS (4 tasks, 1 h) |
 | `snellius` | `env_snellius.yaml` | `p_snellius` | WRF + post-proc on HPC (32 cores, 12 h walltime) |
+| `dev` | `env_dev.yaml` | `p_dev` | Cn² post-processing only, for testing |
 
 ### Typical two-machine workflow
 
-1. **Turbulence** — run `p_preproc` to pull CERRA and produce `met_em*.nc` files.
-2. **Snellius** — run `p_snellius` to execute WRF (32 MPI tasks) and post-processing on scratch, then copy results back.
+1. **Turbulence or DelftBlue** — run `p_preproc` to pull CERRA and produce `met_em*.nc` files.
+2. **Snellius** — run `p_snellius` to execute WRF (32 MPI tasks) and post-processing on scratch, then copy results back
+   (`utils/pull_from_snellius.sh`).
 
 ## Running the pipeline
 
 The entry point is `cli.py`, which reads `env.yaml` and exposes the selected pipeline:
 
 ```bash
-# Run a single simulation
-python cli.py run --stages=<stage> sim_YYYY-MM-DD
+# Create the sim dirs + simulation.yaml (all 73 chunks; sims_1y_dev: every 10th)
+uv run python cli.py init-sims simulations.py sims_1y
+
+# Run a single simulation (or a subset of stages)
+uv run python cli.py run --stages=<stage> sim_YYYY-MM-DD
 
 # Submit a SLURM array job (reads sim dirs from .array_sim_dirs)
 sbatch --array=1-N slurm_<machine>.job.sh <stage>
