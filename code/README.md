@@ -24,14 +24,15 @@ code/
 │   ├── model.py             # SQF-H model
 │   ├── lit.py               # LightningModule (loss, optimizer)
 │   ├── experiments.py       # the three experiments of the paper
-│   ├── predict.py           # inference, ERA5 input swap, HV+W71 reference, output quantile mapping
+│   ├── predict.py           # inference, ERA5 input swap, HV+W71 reference, output QM, PL inputs from any source
 │   └── base.py, datasets.py, transform.py, losses.py, logging.py, types.py
 ├── src/research_tools/      # vendored subset: optical-turbulence integrals, HV profile, YAML config, HTML report
 ├── scripts/
 │   ├── train.py             # train wrf_pl, wrf_native, era5_pl_direct on nl
 │   ├── predict_nl.py        # nl 2017 test predictions + nl output QM
 │   ├── predict_canaries.py  # zero-shot Canary Islands predictions + output QM
-│   └── predict_era5.py      # predictions from ERA5 for any time and location
+│   ├── predict_era5.py      # predictions from ERA5 for any time and location
+│   └── predict_gfs.py       # predictions from GFS forecasts (post-processing)
 ├── paper/
 │   ├── analysis.py          # loading of the predictions, metrics, structure functions
 │   └── figures.py           # all figures and score tables -> paper/plots/
@@ -119,3 +120,17 @@ holds the lcn2, QKE, TSQ and EL_PBL profiles (time, location, height), the nl-oQ
 Every requested time step downloads the global ERA5 fields (~0.7 GB), so keep the time range short. Two differences
 to the paper setup: the terrain height input is ERA5's (training used the WRF terrain), and outside the nl training
 domain (lat 50.25-54.0, lon 2.75-8.25) the model runs zero-shot, for which the script warns.
+
+## 6. Predictions from GFS forecasts
+
+```bash
+uv run python scripts/predict_gfs.py        # -> runs/preds/gfs/sqfh_gfs_<cycle>.nc
+```
+
+Set the locations, the forecast cycle and the lead times at the top. The script downloads only the needed fields of
+the cycle from the NOAA GFS archive on AWS (from 2021 on) by byte range, about 160 fields per lead time, and builds
+the same inputs as for ERA5 (`otprof.predict.make_pl_inputs`): pressure levels from the 0.25 deg `pgrb2` and `pgrb2b`
+files, instantaneous surface fluxes, friction velocity and PBL height from the `sflux` file (nearest point of its
+Gaussian grid). GFS fluxes are upward positive like the training inputs. The model and the nl-oQM were trained and
+fitted with ERA5 inputs; GFS differs from ERA5 in particular in the PBL height and the surface fluxes, so validate
+the GFS-driven predictions for your application before relying on them.
