@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Maximilian Pierzyna
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 # WRF simulation campaign — Netherlands domain
 
 Workspace to generate one year of WRF data over the Netherlands using [`wrf_massive`](https://github.com/mpierzyna/wrf-massive).

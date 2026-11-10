@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Maximilian Pierzyna
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """Pipeline for a single 5-day WRF run over the Canary Islands.
 
 Forcing comes from the TU Delft CERRA mirror. WPS pre-processing runs on DelftBlue (`p_preproc`) and WRF +

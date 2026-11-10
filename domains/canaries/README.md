@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Maximilian Pierzyna
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 # WRF simulation — Canary Islands
 
 Workspace to run twelve 5-day WRF simulations (one per month of 2017) over the Canary Islands using

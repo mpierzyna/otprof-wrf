@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# SPDX-FileCopyrightText: 2026 Maximilian Pierzyna
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 # Job file for DelftBlue. Missing ressources are specfied in the sbatch call.
 #SBATCH --partition=compute
 #SBATCH --account=research-ceg-grs

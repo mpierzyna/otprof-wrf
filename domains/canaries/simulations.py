@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Maximilian Pierzyna
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """Simulation definition for a single 5-day WRF run over the Canary Islands."""
 
 from wrf_massive.base import BBox, Simulation

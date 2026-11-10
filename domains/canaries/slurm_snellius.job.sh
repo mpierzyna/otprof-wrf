@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# SPDX-FileCopyrightText: 2026 Maximilian Pierzyna
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 # Job file for Snellius. Missing ressources are specfied in the sbatch call.
 #SBATCH --partition=rome
 #SBATCH --nodes=1
