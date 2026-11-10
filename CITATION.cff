@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: "If you use this repository, please cite the related article if you refer to the deep learning model, the training dataset if you reuse our data, and wrf-massive if you use the general WRF pipeline to generate your own dataset (all listed under references)."
 type: software
 title: "OTProf-WRF: WRF Setups to Generate High-Resolution Cn2 Mesoscale Simulations"
-version: 0.2.0
-date-released: "2026-10-26"
+version: 0.2.1
+date-released: "2026-11-10"
 license: [GPL-3.0-or-later, MIT]
 repository-code: "https://github.com/mpierzyna/otprof-wrf"
 doi: 10.5281/zenodo.23733024

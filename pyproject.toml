@@ -1,6 +1,6 @@
 [project]
 name = "otprof-wrf"
-version = "0.2.0"
+version = "0.2.1"
 description = "WRF setups to generate high-resolution Cn2 mesoscale simulations"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -26,7 +26,7 @@ line-length = 120  # align with pycharm
 
 # Release: `uvx bump-my-version bump patch|minor|major` updates the files below, commits and tags
 [tool.bumpversion]
-current_version = "0.2.0"
+current_version = "0.2.1"
 commit = true
 tag = true
 tag_name = "v{new_version}"
