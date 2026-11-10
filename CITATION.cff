@@ -3,7 +3,8 @@ message: "If you use this repository, please cite the related article if you ref
 type: software
 title: "OTProf-WRF: WRF Setups to Generate High-Resolution Cn2 Mesoscale Simulations"
 version: 0.2.0
-license: GPL-3.0-or-later
+date-released: "2026-10-26"
+license: [GPL-3.0-or-later, MIT]
 repository-code: "https://github.com/mpierzyna/otprof-wrf"
 doi: 10.5281/zenodo.23733024
 authors:
