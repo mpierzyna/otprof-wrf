@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite both the software and the accompanying article (listed under references)"
+message: "If you use this repository, please cite the related article if you refer to the deep learning model, the training dataset if you reuse our data, and wrf-massive if you use the general WRF pipeline to generate your own dataset (all listed under references)."
 type: software
 title: "OTProf-WRF: WRF Setups to Generate High-Resolution Cn2 Mesoscale Simulations"
 version: 0.2.0
@@ -44,14 +44,16 @@ references:
     publisher:
       name: Zenodo
   - type: software
-    title: "OTProf: Estimating High-Resolution Profiles of Optical Turbulence from Reanalysis Using Deep Learning"
+    title: "wrf-massive: flexible, scalable orchestration of WRF simulations"
     authors:
       - family-names: Pierzyna
         given-names: Maximilian
         orcid: "https://orcid.org/0000-0002-0596-8374"
-    license: GPL-3.0-or-later
-    repository-code: "https://github.com/mpierzyna/otprof"
-    doi: 10.5281/zenodo.24084350
+    version: 1.0.0
+    license: [GPL-3.0-or-later, MIT]
+    repository-code: "https://github.com/mpierzyna/wrf-massive"
+    doi: 10.5281/zenodo.24113829
+    notes: "Included as a git submodule; orchestrates the WRF simulations of this repository."
   - type: software
     title: "EU_SCORES_project"
     authors:

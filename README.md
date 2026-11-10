@@ -17,8 +17,9 @@ The domains [`nl`](./domains/nl/) and [`canaries`](./domains/canaries/) are used
 
 This repository is part of a set of repositories:
 - [`otprof`](https://github.com/mpierzyna/otprof): Code to train a new OTProf model or run a pretrained model.
-- [`otprof-wrf`](https://github.com/mpierzyna/otprof-wrf) (**this repository**): Code to generate the WRF-based $C_n^2$ training data. The generated training dataset and a snapshot of this code are available on Zenodo (DOI: 10.5281/zenodo.23733024).
+- [`otprof-wrf`](https://github.com/mpierzyna/otprof-wrf) (**this repository**): Code to generate the WRF-based $C_n^2$ training data. The generated training dataset and a snapshot of this code are available on Zenodo (DOI: [10.5281/zenodo.23733024](https://doi.org/10.5281/zenodo.23733024)).
 - [`otprof-ui`](https://github.com/mpierzyna/otprof-ui): Code of the web UI to show OTProf-based $C_n^2$ forecasts and climatology. Check it out at [**https://otprof.mpier.eu**](https://otprof.mpier.eu)!
+- [`wrf-massive`](https://github.com/mpierzyna/wrf-massive) (submodule of this repository): Orchestrates the large number of WRF simulations with SLURM (forcing download, WPS, WRF, $C_n^2$ postprocessing). A snapshot is available on Zenodo (DOI: [10.5281/zenodo.24113829](https://doi.org/10.5281/zenodo.24113829)).
 
 Please refer to the [License](#license) and [How to cite](#how-to-cite) sections if you would like to use this software or its products for your own work.
 
@@ -79,7 +80,10 @@ Technische Universiteit Delft hereby disclaims all copyright interest in the pro
 © 2026, Maximilian Pierzyna (excluding third-party code listed above)
 
 ## How to cite
-When using OTProf-WRF, please cite the **related article** and the **training dataset** with the code snapshot. You can do so either using the `./CITATION.cff` file or by using the following information:
+When using this repository, please cite 
+- the **related article** if you are referring to the deep learning model.
+- the **training dataset** on Zenodo if you reuse our data.
+- the **wrf-massive** library if you are using the general WRF pipeline to generate your own dataset.
 
 ### Article
 
@@ -90,3 +94,7 @@ When using OTProf-WRF, please cite the **related article** and the **training da
 Our training dataset is licensed under CC-BY-SA-4.0, so you may reuse it for your own work given that you attribute the original author as follows.
 
 > Pierzyna, M. (2026). *OTProf: Estimating High-Resolution Profiles of Optical Turbulence (Cn2) from Reanalysis Using Deep Learning* (Version 0.2.1) [Dataset]. Zenodo. https://doi.org/10.5281/zenodo.23733024
+
+### wrf-massive
+
+> Pierzyna, M. (2026). *wrf-massive: flexible, scalable orchestration of WRF simulations* (Version 1.0.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.24113829
