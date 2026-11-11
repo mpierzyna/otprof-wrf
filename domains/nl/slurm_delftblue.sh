@@ -7,7 +7,6 @@
 # Job file for DelftBlue. Missing ressources are specfied in the sbatch call.
 #SBATCH --partition=compute
 #SBATCH --account=research-ceg-grs
-#SBATCH --nodes=1
 #SBATCH --ntasks-per-core=1
 #SBATCH --mail-type=END,FAIL
 

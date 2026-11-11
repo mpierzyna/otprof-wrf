@@ -6,7 +6,6 @@
 
 # Job file for Snellius. Missing ressources are specfied in the sbatch call.
 #SBATCH --partition=rome
-#SBATCH --nodes=1
 #SBATCH --ntasks-per-core=1
 #SBATCH --mail-user=m.pierzyna@tudelft.nl
 #SBATCH --mail-type=END,FAIL

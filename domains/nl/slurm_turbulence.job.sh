@@ -6,7 +6,6 @@
 
 # Job file for Chaos. Missing ressources are specfied in the sbatch call.
 #SBATCH --partition=inf
-#SBATCH --nodes=1
 #SBATCH --threads-per-core=1
 
 # Set variables
