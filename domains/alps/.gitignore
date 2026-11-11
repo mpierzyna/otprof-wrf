@@ -3,3 +3,5 @@ slurm/
 *.grb
 *.partial
 *.skip
+
+env.yaml
