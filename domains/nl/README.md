@@ -116,8 +116,8 @@ uv run wrf-massive init-sims simulations.py sims_1y
 # Run a single simulation (or a subset of stages)
 uv run wrf-massive run --stages=<stage> sim_YYYY-MM-DD
 
-# Submit a SLURM array job (reads sim dirs from .array_sim_dirs)
-sbatch --array=1-N slurm_<machine>.job.sh <stage>
+# Or submit each stage as its own SLURM job (the stages of a simulation are chained)
+uv run wrf-massive submit --stages=<stage> -j slurm_<machine>.job.sh sim_YYYY-MM-DD
 ```
 
 `wrf_massive` tracks completion via `.done` marker files; stages are skipped if already finished.
