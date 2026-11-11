@@ -1,0 +1,7 @@
+# Run artifacts inside simulation dirs
+slurm/
+*.grb
+*.partial
+*.skip
+
+env.yaml
