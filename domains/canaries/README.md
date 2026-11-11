@@ -111,7 +111,7 @@ uv run wrf-massive init-sims simulations.py sim_canaries
 uv run wrf-massive run --stages=<stage> sim_2017-01-01
 
 # Or submit each stage as its own SLURM job (the stages of a simulation are chained)
-uv run wrf-massive submit --stages=<stage> -j slurm_<machine>.job.sh sim_2017-01-01
+uv run wrf-massive submit --stages=<stage> sim_2017-01-01
 ```
 
 `wrf_massive` tracks completion via `.done` marker files; finished stages are skipped on re-run.

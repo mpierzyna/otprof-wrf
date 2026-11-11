@@ -12,4 +12,5 @@ wrf:
   wrf_tmpl_dir: "/home/mpierzyna/wrf/WRF"
 
 pipeline: "p_preproc"
+job_file: "slurm_delftblue.sh"
 log_level: info

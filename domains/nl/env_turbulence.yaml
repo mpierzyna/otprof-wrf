@@ -12,4 +12,5 @@ wrf:
   wrf_tmpl_dir: "/media/sukanta/HD3/max/WRFV4.5_Photonloop/submodules/WRF"
 
 pipeline: "p_preproc"
+job_file: "slurm_turbulence.job.sh"
 log_level: info

@@ -13,4 +13,5 @@ wrf:
   wrf_tmpl_dir: "/home/mpierzyna/.local/easybuild/RHEL9/2024/software/WRF/4.5.2-foss-2024a-dmpar/WRFV4.5.2"
 
 pipeline: "p_snellius"
+job_file: "slurm_snellius.job.sh"
 log_level: info

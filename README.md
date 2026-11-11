@@ -57,7 +57,7 @@ ln -sf env_<machine>.yaml env.yaml                       # selects the machine p
 
 uv run wrf-massive init-sims simulations.py sims_1y     # (re)create the sim_*/ dirs and simulation.yaml
 uv run wrf-massive run --stages=wps,wrf sim_2017-01-01  # run stages locally (all stages if omitted)
-uv run wrf-massive submit -s wrf -j slurm_<machine>.job.sh sim_2017-01-01   # or submit them to SLURM
+uv run wrf-massive submit -s wrf sim_2017-01-01             # or submit them to SLURM (job script from env file)
 ```
 
 Stage names are those of the pipeline selected in `env.yaml` (`pipeline.py`), e.g. for the full `nl` pipeline
