@@ -103,6 +103,9 @@ _sim_done = MarkDone(
 
 if env["machine"] == "delftblue":
     # WPS pre-processing with forcing from the TU Delft CERRA mirror. WPS runs dmpar on 4 tasks.
+    # compute_p1: 48 cores, 185GB RAM, 150GB SSD, mem-per-cpu=3996M
+    # compute_p2: 64 cores, 256GB RAM, 360GB SSD, mem-per-cpu=4000M
+    # check https://doc.dhpc.tudelft.nl/delftblue/DHPC-hardware/ for details.
     p_preproc = Pipeline(
         cerra=_update_resources(
             _cerra,
@@ -111,16 +114,16 @@ if env["machine"] == "delftblue":
         ),
         wps=_update_resources(
             _wps,
-            n_tasks=4,
+            n_tasks=12,  # 1/4 of phase 1 node
             cpus_per_task=1,
-            mem_per_cpu="3G",
+            mem_per_cpu="3996M",
             walltime=datetime.timedelta(hours=1),
         ),
     )
 
 if env["machine"] == "snellius":
     # For Snellius: run WRF and postproc with more ressources.
-    # Domain size is comparable to the NL campaign (200x125 vs. 144x192), where 32 cores took ~9h per 5.5 sim days.
+    # check https://servicedesk.surf.nl/wiki/spaces/WIKI/pages/30660209/Snellius+partitions
     # tmp-dir behaviour is configured per substage. Copies, so the shared `_wrf`/`_cn2` instances keep their defaults.
     TMP_ROOT = pathlib.Path("/scratch-shared/mpierzyna/")
     _wrf_tmp = _wrf.model_copy(
@@ -144,18 +147,19 @@ if env["machine"] == "snellius":
     )
 
     p_snellius = Pipeline(
+        # One full genoa node for WRF
         wrf=_update_resources(
             _wrf_tmp,
-            n_tasks=32,
+            n_tasks=192,
             cpus_per_task=1,
-            mem_per_cpu="1000M",
+            mem_per_cpu="1750M",  # all the RAM
             walltime=datetime.timedelta(hours=12),
         ),
         cn2=_update_resources(
             _cn2_tmp,
             n_tasks=1,
-            cpus_per_task=16,
-            mem_per_cpu="2000M",
-            walltime=datetime.timedelta(minutes=15),
+            cpus_per_task=48,
+            mem_per_cpu="4000M",
+            walltime=datetime.timedelta(minutes=30),
         ),
     )

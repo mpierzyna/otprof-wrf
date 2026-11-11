@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Job file for Snellius. Missing ressources are specfied in the sbatch call.
-#SBATCH --partition=rome
+#SBATCH --partition=genoa
 #SBATCH --ntasks-per-core=1
 #SBATCH --mail-user=m.pierzyna@tudelft.nl
 #SBATCH --mail-type=END,FAIL
