@@ -1,0 +1,8 @@
+# Run artifacts inside simulation dirs
+slurm/
+*.grb
+*.partial
+*.skip
+
+# Example simulation created by `wrf-massive init-sims simulations.py sim_test`
+test_1/
