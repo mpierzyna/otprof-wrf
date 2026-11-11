@@ -35,7 +35,7 @@ def _update_resources(stage: Stage, **resources) -> Stage:
 
 
 # Load host-specific environment settings
-env = load_env()  # env file selected by `wrf-massive --env-file` (default: env.yaml)
+env = load_env()  # env.yaml, symlinked to the env file of the machine
 
 # Setup stages
 _cerra = PullCerraStage(

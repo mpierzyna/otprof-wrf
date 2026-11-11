@@ -23,7 +23,7 @@ fi
 module load 2024
 module load foss/2024a
 
-# Run (unbuffered). `submit` passes the env file it was started with via $WRF_MASSIVE_ENV_FILE.
+# Run (unbuffered). Fails if env.yaml changed since `submit` (checked via $WRF_MASSIVE_ENV_SHA256).
 export PYTHONUNBUFFERED=1
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 export OPENBLAS_NUM_THREADS=$SLURM_CPUS_PER_TASK

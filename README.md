@@ -53,7 +53,6 @@ from anywhere inside a domain directory. See the domain READMEs for the pipeline
 ```bash
 cd domains/nl
 ln -sf env_<machine>.yaml env.yaml                       # selects the machine paths and the pipeline
-                                                         # (or pass `wrf-massive -e env_<machine>.yaml ...`)
 
 uv run wrf-massive init-sims simulations.py sims_1y     # (re)create the sim_*/ dirs and simulation.yaml
 uv run wrf-massive run --stages=wps,wrf sim_2017-01-01  # run stages locally (all stages if omitted)

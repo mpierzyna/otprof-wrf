@@ -83,8 +83,8 @@ Intermediate data are garbage-collected automatically: CERRA files are removed o
 
 ## Machine configurations
 
-Select the active machine by symlinking `env.yaml` to one of the provided environment files, or pass the file with
-`wrf-massive --env-file env_<machine>.yaml ...`:
+Select the active machine by symlinking `env.yaml` to one of the provided environment files. Queued jobs fail if
+`env.yaml` changes before they start, so don't switch while jobs of this domain are waiting:
 
 ```bash
 ln -sf env_<machine>.yaml env.yaml

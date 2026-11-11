@@ -26,7 +26,7 @@ module load slurm
 # Make tmp WPS dir on node-local SSD
 mkdir -p /tmp/wrf-massive
 
-# Run (unbuffered). `submit` passes the env file it was started with via $WRF_MASSIVE_ENV_FILE.
+# Run (unbuffered). Fails if env.yaml changed since `submit` (checked via $WRF_MASSIVE_ENV_SHA256).
 export RUNNER=srun
 export PYTHONUNBUFFERED=1
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK

@@ -84,8 +84,8 @@ files are removed once Cn² output exists.
 
 ## Machine configurations
 
-Select the active machine by symlinking `env.yaml` (read by `wrf-massive`) to one of the environment files, or pass
-the file with `wrf-massive --env-file env_<machine>.yaml ...`:
+Select the active machine by symlinking `env.yaml` (read by `wrf-massive`) to one of the environment files. Queued
+jobs fail if `env.yaml` changes before they start, so don't switch while jobs of this domain are waiting:
 
 ```bash
 ln -sf env_<machine>.yaml env.yaml
