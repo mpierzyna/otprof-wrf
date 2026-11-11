@@ -1071,7 +1071,7 @@ source = { virtual = "." }
 dev = [
     { name = "ipykernel" },
     { name = "pip" },
-    { name = "wrf-massive" },
+    { name = "wrf-massive", extra = ["postproc"] },
 ]
 
 [package.metadata]
@@ -1080,7 +1080,7 @@ dev = [
 dev = [
     { name = "ipykernel", specifier = ">=7.3.0" },
     { name = "pip", specifier = ">=26.1.2" },
-    { name = "wrf-massive", editable = "submodules/wrf-massive" },
+    { name = "wrf-massive", extras = ["postproc"], editable = "submodules/wrf-massive" },
 ]
 
 [[package]]
@@ -1969,8 +1969,12 @@ dependencies = [
     { name = "scipy" },
     { name = "seaborn" },
     { name = "tqdm" },
-    { name = "wrf-python" },
     { name = "xarray" },
+]
+
+[package.optional-dependencies]
+postproc = [
+    { name = "wrf-python" },
 ]
 
 [package.metadata]
@@ -1992,9 +1996,10 @@ requires-dist = [
     { name = "scipy", specifier = ">=1.17.1" },
     { name = "seaborn", specifier = ">=0.13.2" },
     { name = "tqdm", specifier = ">=4.67.3" },
-    { name = "wrf-python", git = "https://github.com/NCAR/wrf-python?tag=v1.4.2" },
+    { name = "wrf-python", marker = "extra == 'postproc'", git = "https://github.com/NCAR/wrf-python?tag=v1.4.2" },
     { name = "xarray", specifier = ">=2026.4.0" },
 ]
+provides-extras = ["postproc"]
 
 [package.metadata.requires-dev]
 dev = [

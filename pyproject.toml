@@ -15,7 +15,7 @@ dependencies = []
 dev = [
     "ipykernel>=7.3.0",
     "pip>=26.1.2",
-    "wrf_massive",
+    "wrf_massive[postproc]",  # the domains use the Cn2 postprocessing stage
 ]
 
 [tool.uv.sources]
