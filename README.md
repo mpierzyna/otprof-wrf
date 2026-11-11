@@ -47,16 +47,17 @@ This software has been developed by [**Maximilian Pierzyna**](https://orcid.org/
 
 ## Usage
 
-Each domain is a self-contained `wrf-massive` workspace; run everything from its directory. See the domain READMEs
-for the pipelines and machines.
+Each domain is a self-contained `wrf-massive` workspace; `uv sync` installs the `wrf-massive` command, which works
+from anywhere inside a domain directory. See the domain READMEs for the pipelines and machines.
 
 ```bash
 cd domains/nl
 ln -sf env_<machine>.yaml env.yaml                       # selects the machine paths and the pipeline
+                                                         # (or pass `wrf-massive -e env_<machine>.yaml ...`)
 
-uv run python cli.py init-sims simulations.py sims_1y   # (re)create the sim_*/ dirs and simulation.yaml
-uv run python cli.py run --stages=wps,wrf sim_2017-01-01 # run stages locally (all stages if omitted)
-uv run python cli.py submit -s wrf -j slurm_<machine>.job.sh sim_2017-01-01   # or submit them to SLURM
+uv run wrf-massive init-sims simulations.py sims_1y     # (re)create the sim_*/ dirs and simulation.yaml
+uv run wrf-massive run --stages=wps,wrf sim_2017-01-01  # run stages locally (all stages if omitted)
+uv run wrf-massive submit -s wrf -j slurm_<machine>.job.sh sim_2017-01-01   # or submit them to SLURM
 ```
 
 Stage names are those of the pipeline selected in `env.yaml` (`pipeline.py`), e.g. for the full `nl` pipeline

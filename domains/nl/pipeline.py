@@ -11,12 +11,12 @@ import random
 import string
 
 from wrf_massive.base import Pipeline, Resources, Simulation, Stage
-from wrf_massive.config import yaml_to_dict
 from wrf_massive.stages.forcing import PullCerraStage
 from wrf_massive.stages.misc import GarbageCollectStage, MarkDone, StageArray
 from wrf_massive.stages.postproc.cn2 import Cn2PostProcStage
 from wrf_massive.stages.wps import WPSStage
 from wrf_massive.stages.wrf import WRFStage
+from wrf_massive.workspace import load_env
 
 
 def get_random_id(n: int = 6) -> str:
@@ -35,7 +35,7 @@ def _update_resources(stage: Stage, **resources) -> Stage:
 
 
 # Load host-specific environment settings
-env = yaml_to_dict(pathlib.Path("env.yaml").read_text())
+env = load_env()  # env file selected by `wrf-massive --env-file` (default: env.yaml)
 
 # Setup stages
 _cerra = PullCerraStage(

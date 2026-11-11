@@ -83,7 +83,8 @@ Intermediate data are garbage-collected automatically: CERRA files are removed o
 
 ## Machine configurations
 
-Select the active machine by symlinking `env.yaml` to one of the provided environment files:
+Select the active machine by symlinking `env.yaml` to one of the provided environment files, or pass the file with
+`wrf-massive --env-file env_<machine>.yaml ...`:
 
 ```bash
 ln -sf env_<machine>.yaml env.yaml
@@ -105,14 +106,15 @@ ln -sf env_<machine>.yaml env.yaml
 
 ## Running the pipeline
 
-The entry point is `cli.py`, which reads `env.yaml` and exposes the selected pipeline:
+The entry point is the `wrf-massive` command, which reads `env.yaml` and exposes the selected pipeline. It works
+from anywhere inside this directory:
 
 ```bash
 # Create the sim dirs + simulation.yaml (all 73 chunks; sims_1y_dev: every 10th)
-uv run python cli.py init-sims simulations.py sims_1y
+uv run wrf-massive init-sims simulations.py sims_1y
 
 # Run a single simulation (or a subset of stages)
-uv run python cli.py run --stages=<stage> sim_YYYY-MM-DD
+uv run wrf-massive run --stages=<stage> sim_YYYY-MM-DD
 
 # Submit a SLURM array job (reads sim dirs from .array_sim_dirs)
 sbatch --array=1-N slurm_<machine>.job.sh <stage>

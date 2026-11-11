@@ -12,3 +12,4 @@ wrf:
   wrf_tmpl_dir: "/tmp"
 
 pipeline: "p_dev"
+log_level: info
