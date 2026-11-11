@@ -147,10 +147,9 @@ if env["machine"] == "snellius":
     )
 
     p_snellius = Pipeline(
-        # One full genoa node for WRF
         wrf=_update_resources(
             _wrf_tmp,
-            n_tasks=192,
+            n_tasks=128,
             cpus_per_task=1,
             mem_per_cpu="1750M",  # all the RAM
             walltime=datetime.timedelta(hours=12),
