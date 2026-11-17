@@ -35,7 +35,7 @@ dependencies = [
 
 preconfigopts = "export NETCDF=$EBROOTNETCDFMINFORTRAN && export NETCDF_C=$EBROOTNETCDF &&"
 
-runtest = True
+runtest = False  # this takes very long
 
 # limit parallel build to 20
 maxparallel = 20
