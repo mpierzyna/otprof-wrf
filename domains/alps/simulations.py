@@ -2,6 +2,7 @@
 
 import datetime
 from wrf_massive.base import Simulation
+from wrf_massive.sim_gen import get_spaced_sims
 
 # Settings are inserted into namelist.tmpl.input by matching names, e.g.
 # `physics__bl_pbl_physics` fills `{{ physics__bl_pbl_physics }}`.
@@ -21,26 +22,20 @@ mynn25 = {
 def get_1y_sims(net_sim_days: int = 5, step: int = 4, offset: int = 0) -> list[Simulation]:
     global_begin = datetime.datetime(2017, 1, 1)
     global_end = datetime.datetime(2021, 1, 1)
-    global_days = (global_end - global_begin).days
 
-    sims = []
-    for i in range(offset * step, global_days, net_sim_days * step):
-        begin = global_begin + datetime.timedelta(days=i)
-        end = begin + datetime.timedelta(days=net_sim_days)
-        sim = Simulation(
-            begin=begin,
-            end=end,
-            warmup_h=12,
-            sim_dir=f"sim_{begin.strftime('%Y-%m-%d')}",
-            settings=mynn25,
-        )
-        sims.append(sim)
-    return sims
+    return get_spaced_sims(
+        global_begin,
+        global_end,
+        settings=mynn25,
+        net_sim_days=net_sim_days,
+        step=step,
+        offset=offset,
+    )
 
 
-sims_1y = get_1y_sims(step=4)
+# nl: offset=0 (indirectly from old sims); alps: offset=1; baltics: offset=2; pyrenees: offset=3;
+sims_1y = get_1y_sims(offset=1)
 sims_1y_half = sims_1y[::2]
-
 
 # Test simulation with 1 day of usable data. The 12 h warmup is added before `begin` automatically.
 sim_test = Simulation(
