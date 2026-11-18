@@ -119,7 +119,7 @@ if env["machine"] == "delftblue":
             n_tasks=12,  # 1/4 of phase 1 node
             cpus_per_task=1,
             mem_per_cpu="1000M",
-            walltime=datetime.timedelta(hours=.5),
+            walltime=datetime.timedelta(hours=1.5),
         ),
     )
 
