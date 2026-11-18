@@ -119,7 +119,7 @@
  diff_6th_opt                        = 0,
  diff_6th_factor                     = 0.12,
  base_temp                           = 290.
- damp_opt                            = 0,
+ damp_opt                            = 3,  ! implicit Rayleigh w-damping in top zdamp (absorbs mountain waves)
  zdamp                               = 5000.,
  dampcoef                            = 0.2,
  khdif                               = 0,
@@ -128,6 +128,7 @@
  moist_adv_opt                       = 1,
  scalar_adv_opt                      = 1,
  epssm                               = 0.2,
+ zadvect_implicit                    = 1,  ! IEVA (Wicker & Skamarock 2020); fixes vertical CFL blow-ups over steep terrain
  /
 
  &bdy_control
