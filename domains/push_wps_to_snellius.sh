@@ -11,7 +11,13 @@
 
 set -euo pipefail
 
-REMOTE_DOMAINS_DIR="/home/mpierzyna/prjs1785/otprof-wrf/domains"
+# Todo: these should probably become proper env variables
+# REMOTE=snellius
+# REMOTE_DOMAINS_DIR="/home/mpierzyna/prjs1785/otprof-wrf/domains"
+
+REMOTE=snellius_carlo
+REMOTE_DOMAINS_DIR="/home/mpierzyna1/prjs0951/otprof-wrf/domains"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [ $# -lt 1 ] || [ -z "$1" ]; then
@@ -41,4 +47,4 @@ rclone copy \
     --transfers=8 \
     --multi-thread-streams=1 \
     --include '**/met_em*.nc' \
-    "${LOCAL_DIR}" "snellius:${REMOTE_DOMAINS_DIR}/${DOMAIN}"
+    "${LOCAL_DIR}" "${REMOTE}:${REMOTE_DOMAINS_DIR}/${DOMAIN}"
