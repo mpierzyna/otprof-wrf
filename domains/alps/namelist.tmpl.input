@@ -27,7 +27,7 @@
  io_form_boundary                    = 2
  debug_level                         = 0
  iofields_filename                   = "myoutfields.txt",
- ignore_iofields_warning             = .true.,
+ ignore_iofields_warning             = .false.,  ! abort on unknown fields in myoutfields.txt
  auxhist7_outname                    = "wrfout_aux_d<domain>_<date>"
  auxhist7_interval                   = 60,
  frames_per_auxhist7                 = 6,  ! 6h per file
@@ -73,7 +73,7 @@
                 0.0560, 0.0506, 0.0455, 0.0407, 0.0362, 0.0320,
                 0.0280, 0.0243, 0.0209, 0.0176, 0.0146, 0.0117,
                 0.0090, 0.0066, 0.0042, 0.0020, 0.0000,
-/
+ /
 
  &physics
  mp_physics                          = 4,
@@ -106,6 +106,10 @@
  maxens3                             = 16,
  ensdim                              = 144,
  windfarm_opt                        = 0,
+ /
+  
+ &diags
+ solar_diagnostics                   =  1  ! gives us 2D cloud diagnostics. See registry.solar_fields
  /
 
  &dynamics
