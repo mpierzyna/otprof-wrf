@@ -14,10 +14,11 @@ import pathlib
 from wrf_massive.base import Pipeline, Resources, Simulation, Stage
 from wrf_massive.stages.forcing import PullCerraStage
 from wrf_massive.stages.misc import GarbageCollectStage, MarkDone
-from wrf_massive.stages.postproc.cn2 import Cn2PostProcStage
 from wrf_massive.stages.wps import WPSStage
 from wrf_massive.stages.wrf import WRFStage
 from wrf_massive.workspace import load_env
+
+from otprof_wrf.postproc import OTProfCn2PostProcStage
 
 
 def _update_resources(stage: Stage, **resources) -> Stage:
@@ -68,9 +69,10 @@ _wrf = WRFStage(
     resources=Resources(n_tasks=48, cpus_per_task=1, mem_per_cpu="1G"),  # chaos: 128 cores available
 )
 
-_cn2 = Cn2PostProcStage(
+_cn2 = OTProfCn2PostProcStage(
     work_dir="4_postproc",
     wrfout_dir=_wrf.work_dir,  # 3_wrf
+    myoutfields_path=_wrf.myoutfields_path,  # checks at load time that WRF writes what is post-processed
     domain=1,
     compression=True,
     run_parallel=True,
@@ -153,7 +155,7 @@ if env["machine"] == "snellius":
             n_tasks=192,
             cpus_per_task=1,
             mem_per_cpu="1750M",  # all the RAM
-            walltime=datetime.timedelta(hours=4.5),
+            walltime=datetime.timedelta(hours=15),
         ),
         cn2=_update_resources(
             _cn2_tmp,
@@ -162,4 +164,11 @@ if env["machine"] == "snellius":
             mem_per_cpu="4000M",
             walltime=datetime.timedelta(minutes=30),
         ),
+    )
+
+if env["machine"] == "dev":
+    # For local dev
+    p_dev = Pipeline(
+        wrf=_wrf,
+        cn2=_cn2,
     )

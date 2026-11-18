@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 Maximilian Pierzyna
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+machine: dev
+
+wps:
+  wps_tmpl_dir: "/tmp"  # placeholder
+  geog_data_path: "/tmp"  # placeholder
+
+wrf:
+  wrf_tmpl_dir: "/tmp"  # placeholder
+
+pipeline: "p_dev"
+# job_file: "slurm_snellius.sh"
+log_level: info

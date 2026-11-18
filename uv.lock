@@ -1065,22 +1065,24 @@ wheels = [
 [[package]]
 name = "otprof-wrf"
 version = "0.2.1"
-source = { virtual = "." }
+source = { editable = "." }
+dependencies = [
+    { name = "wrf-massive", extra = ["postproc"] },
+]
 
 [package.dev-dependencies]
 dev = [
     { name = "ipykernel" },
     { name = "pip" },
-    { name = "wrf-massive", extra = ["postproc"] },
 ]
 
 [package.metadata]
+requires-dist = [{ name = "wrf-massive", extras = ["postproc"], editable = "submodules/wrf-massive" }]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "ipykernel", specifier = ">=7.3.0" },
     { name = "pip", specifier = ">=26.1.2" },
-    { name = "wrf-massive", extras = ["postproc"], editable = "submodules/wrf-massive" },
 ]
 
 [[package]]

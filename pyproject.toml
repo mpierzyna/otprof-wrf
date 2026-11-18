@@ -9,14 +9,20 @@ license-files = ["LICENSES/*.txt"]
 authors = [
     { name = "Maximilian Pierzyna" },
 ]
-dependencies = []
+dependencies = [
+    "wrf_massive[postproc]",  # otprof_wrf builds on its stages, e.g. the Cn2 postprocessing stage
+]
 
 [dependency-groups]
 dev = [
     "ipykernel>=7.3.0",
     "pip>=26.1.2",
-    "wrf_massive[postproc]",  # the domains use the Cn2 postprocessing stage
 ]
+
+# Package `otprof_wrf` (src/otprof_wrf): project-specific stages used by the domain pipelines
+[build-system]
+requires = ["uv_build>=0.12.23,<0.13"]
+build-backend = "uv_build"
 
 [tool.uv.sources]
 wrf_massive = { path = "submodules/wrf-massive", editable = true }

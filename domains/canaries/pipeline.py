@@ -14,10 +14,13 @@ import pathlib
 from wrf_massive.base import Pipeline, Resources, Simulation, Stage
 from wrf_massive.stages.forcing import PullCerraStage
 from wrf_massive.stages.misc import GarbageCollectStage, MarkDone
-from wrf_massive.stages.postproc.cn2 import Cn2PostProcStage
+from wrf_massive.stages.postproc.cn2 import fn_ct2_cn2
+from wrf_massive.stages.postproc.precip import fn_int_water_paths
 from wrf_massive.stages.wps import WPSStage
 from wrf_massive.stages.wrf import WRFStage
 from wrf_massive.workspace import load_env
+
+from otprof_wrf.postproc import OTProfCn2PostProcStage
 
 
 def _update_resources(stage: Stage, **resources) -> Stage:
@@ -68,10 +71,36 @@ _wrf = WRFStage(
     resources=Resources(n_tasks=48, cpus_per_task=1, mem_per_cpu="1G"),  # chaos: 128 cores available
 )
 
-_cn2 = Cn2PostProcStage(
+# Backward compatibility: this domain's runs were post-processed before the solar_diagnostics variables, so keep the
+# variables and postproc fns of wrf-massive's former `Cn2PostProcStage` (<= v2.1.1) instead of the OTProf defaults.
+_cn2 = OTProfCn2PostProcStage(
     work_dir="4_postproc",
     wrfout_dir=_wrf.work_dir,  # 3_wrf
     domain=1,
+    extract_vars=[
+        "z",
+        "HGT",
+        "p",
+        "u_met",
+        "v_met",
+        "w",
+        "th",  # potential temperature
+        "rh",
+        "PBLH",
+        "LANDMASK",
+        "mdbz",  # maximum reflectivity
+        "slp",
+        "T2",
+        "U10",
+        "V10",
+        "LH",
+        "HFX",
+        "UST",
+        "QKE",
+        ("EL_PBL", "bottom_top_stag"),
+        "TSQ",
+    ],
+    postproc_fns=[fn_ct2_cn2, fn_int_water_paths],
     compression=True,
     run_parallel=True,
     resources=Resources(n_tasks=1, cpus_per_task=8, mem_per_cpu="1GB"),
