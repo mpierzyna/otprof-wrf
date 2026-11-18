@@ -125,7 +125,7 @@ if env["machine"] == "snellius":
     # For Snellius: run WRF and postproc with more ressources.
     # check https://servicedesk.surf.nl/wiki/spaces/WIKI/pages/30660209/Snellius+partitions
     # tmp-dir behaviour is configured per substage. Copies, so the shared `_wrf`/`_cn2` instances keep their defaults.
-    TMP_ROOT = pathlib.Path("/scratch-shared/mpierzyna/")
+    TMP_ROOT = pathlib.Path("/scratch-shared/mpierzyna1/")
     _wrf_tmp = _wrf.model_copy(
         update={
             "tmp_work_root": TMP_ROOT,
@@ -153,7 +153,7 @@ if env["machine"] == "snellius":
             n_tasks=192,
             cpus_per_task=1,
             mem_per_cpu="1750M",  # all the RAM
-            walltime=datetime.timedelta(hours=12),
+            walltime=datetime.timedelta(hours=4.5),
         ),
         cn2=_update_resources(
             _cn2_tmp,
