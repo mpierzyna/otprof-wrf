@@ -126,7 +126,8 @@ if env["machine"] == "delftblue":
 if env["machine"] == "snellius":
     # For Snellius: run WRF and postproc with more ressources.
     # check https://servicedesk.surf.nl/wiki/spaces/WIKI/pages/30660209/Snellius+partitions
-    # tmp-dir behaviour is configured per substage. Copies, so the shared `_wrf`/`_cn2` instances keep their defaults.
+    # tmp-dir behaviour is configured per substage. Copy, so the shared `_wrf` instance keeps its defaults.
+    # Only WRF runs on scratch; Cn2 postproc writes directly to project storage (reads wrfout via the 3_wrf symlink).
     TMP_ROOT = pathlib.Path("/scratch-shared/mpierzyna1/")
     _wrf_tmp = _wrf.model_copy(
         update={
@@ -141,12 +142,6 @@ if env["machine"] == "snellius":
             "tmp_skip_teardown": True,  # leave symlink in place so Cn2 can postproc
         }
     )
-    _cn2_tmp = _cn2.model_copy(
-        update={
-            "tmp_work_root": TMP_ROOT,
-            "tmp_skip_teardown": True,
-        }
-    )
 
     p_snellius = Pipeline(
         # One full genoa node for WRF
@@ -157,12 +152,15 @@ if env["machine"] == "snellius":
             mem_per_cpu="1750M",  # all the RAM
             walltime=datetime.timedelta(hours=15),
         ),
+        # Quarter genoa node for Cn2: one worker per 6-hourly aux file (21 per sim incl. the final 1-frame file), so
+        # all run in one round. ~3.5 GB peak per worker (frame-wise postproc) -> 21 workers need ~74 GB, which on
+        # genoa (1750M per core) means 48 cores; the extra cores are only allocated for their memory.
         cn2=_update_resources(
-            _cn2_tmp,
+            _cn2.model_copy(update={"n_workers": 21}),  # no tmp dir: 4_postproc lives on project storage
             n_tasks=1,
             cpus_per_task=48,
-            mem_per_cpu="4000M",
-            walltime=datetime.timedelta(minutes=30),
+            mem_per_cpu="1750M",
+            walltime=datetime.timedelta(hours=1),
         ),
     )
 
