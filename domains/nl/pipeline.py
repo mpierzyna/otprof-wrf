@@ -17,9 +17,12 @@ from wrf_massive.stages.postproc.cn2 import fn_ct2_cn2
 from wrf_massive.stages.postproc.precip import fn_int_water_paths
 from wrf_massive.stages.wps import WPSStage
 from wrf_massive.stages.wrf import WRFStage
+from wrf_massive.store.ingest import IngestStage
+from wrf_massive.store.netcdf import NetCDFStore
 from wrf_massive.workspace import load_env
 
 from otprof_wrf.postproc import OTProfCn2PostProcStage
+from otprof_wrf.store import otprof_store
 
 
 def get_random_id(n: int = 6) -> str:
@@ -177,7 +180,7 @@ if env["machine"] == "snellius":
     # Update: took ~9h, so set to 12h with buffer for copying and memory bandwith saturation.
     # tmp-dir behaviour is configured per substage now. Copies, so the shared `_wrf`/`_cn2`
     # instances used by `p_default` keep their defaults.
-    TMP_ROOT = pathlib.Path("/scratch-shared/mpierzyna/")
+    TMP_ROOT = pathlib.Path("/scratch-shared/mpierzyna1/")
     _wrf_tmp = _wrf.model_copy(
         update={
             "tmp_work_root": TMP_ROOT,
@@ -231,6 +234,20 @@ if env["machine"] == "snellius":
             cpus_per_task=16,
             mem_per_cpu="2000M",
             walltime=datetime.timedelta(minutes=15),
+        ),
+        # Cn2 netCDF output of this (closed) campaign, kept read-only in the old workspace on project storage
+        # prjs1785 -> OTProf zarr store. Lay out first (login node, metadata only; template = first netCDF file):
+        # `wrf-massive store init-domain --stage ingest sim_*`. One worker per file (21), ~1.3 GB each.
+        ingest=IngestStage(
+            work_dir="5_ingest",  # sim lock only
+            src=NetCDFStore(file_suffix=_cn2.store.file_suffix, root="/projects/prjs1785/otprof/data/nl/wrf"),
+            src_dir=_cn2.work_dir,
+            store=otprof_store(env["store_path"], "nl"),
+            run_parallel=True,
+            n_workers=21,
+            resources=Resources(
+                n_tasks=1, cpus_per_task=24, mem_per_cpu="1750M", walltime=datetime.timedelta(minutes=30)
+            ),
         ),
     )
 

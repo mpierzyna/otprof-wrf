@@ -63,6 +63,24 @@ Stage names are those of the pipeline selected in `env.yaml` (`pipeline.py`), e.
 `cerra`, `wps`, `cerra_gc`, `wrf`, `cn2` (Cn2 post-processing) and `sim_done`. Finished stages are marked with
 `.done` files and skipped on re-runs. The final output of a simulation is the compressed NetCDF in `sim_*/4_postproc/`.
 
+### Zarr store
+
+On Snellius, the post-processed output of all domains goes into one zarr store for ML training (`store_path` in
+`env_snellius.yaml`, one group per domain; settings shared by all domains in `src/otprof_wrf/store.py`, design and
+benchmarks in `submodules/wrf-massive/src/wrf_massive/store/DESIGN.md`):
+
+- baltics, pyrenees: the `cn2` stage writes straight into the store.
+- alps, nl, canaries: the `ingest` stage copies the existing netCDF output (alps: `sim_*/4_postproc`; nl, canaries:
+  the old workspaces in `/projects/prjs1785/otprof/data/<domain>/wrf`) into the store.
+
+```bash
+cd domains/baltics
+uv run wrf-massive store init-domain --stage cn2 sim_*  # once per domain/new sims (login node, metadata only)
+uv run wrf-massive submit -s cn2 sim_*                  # (alps/nl/canaries: --stage ingest / -s ingest)
+uv run wrf-massive store verify --stage cn2             # frames written per sim
+uv run wrf-massive store pull <remote>:<store_path> ~/data/otprof.zarr --domain alps --vars cn2,z  # partial copy
+```
+
 ## AI statement
 Claude Opus 5.5 (Anthropic, model ID `claude-opus-5-5`), used through Claude Code, assisted with the development of the code, documentation, and project configuration in this repository. The author has carefully reviewed all AI-assisted contributions.
 

@@ -16,9 +16,12 @@ from wrf_massive.stages.forcing import PullCerraStage
 from wrf_massive.stages.misc import GarbageCollectStage, MarkDone
 from wrf_massive.stages.wps import WPSStage
 from wrf_massive.stages.wrf import WRFStage
+from wrf_massive.store.ingest import IngestStage
+from wrf_massive.store.netcdf import NetCDFStore
 from wrf_massive.workspace import load_env
 
 from otprof_wrf.postproc import OTProfCn2PostProcStage
+from otprof_wrf.store import otprof_store
 
 
 def _update_resources(stage: Stage, **resources) -> Stage:
@@ -160,6 +163,18 @@ if env["machine"] == "snellius":
             cpus_per_task=48,
             mem_per_cpu="1750M",
             walltime=datetime.timedelta(hours=1),
+        ),
+        # Cn2 netCDF output (4_postproc) -> OTProf zarr store. Lay out first (login node, metadata only):
+        # `wrf-massive store init-domain --stage ingest sim_*`. One worker per file (21), ~2 GB each for alps ->
+        # 48 cores for the memory, as for cn2.
+        ingest=IngestStage(
+            work_dir="5_ingest",  # sim lock only
+            src=NetCDFStore(file_suffix=_cn2.store.file_suffix),
+            src_dir=_cn2.work_dir,
+            store=otprof_store(env["store_path"], "alps"),
+            run_parallel=True,
+            n_workers=21,
+            resources=Resources(n_tasks=1, cpus_per_task=48, mem_per_cpu="1750M", walltime=datetime.timedelta(hours=1)),
         ),
     )
 

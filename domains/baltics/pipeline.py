@@ -19,6 +19,7 @@ from wrf_massive.stages.wrf import WRFStage
 from wrf_massive.workspace import load_env
 
 from otprof_wrf.postproc import OTProfCn2PostProcStage
+from otprof_wrf.store import otprof_store
 
 
 def _update_resources(stage: Stage, **resources) -> Stage:
@@ -125,7 +126,8 @@ if env["machine"] == "delftblue":
 if env["machine"] == "snellius":
     # For Snellius: run WRF and postproc with more ressources.
     # check https://servicedesk.surf.nl/wiki/spaces/WIKI/pages/30660209/Snellius+partitions
-    # tmp-dir behaviour is configured per substage. Copies, so the shared `_wrf`/`_cn2` instances keep their defaults.
+    # tmp-dir behaviour is configured per substage. Copy, so the shared `_wrf` instance keeps its defaults.
+    # Only WRF runs on scratch; Cn2 reads wrfout via the 3_wrf symlink and writes into the zarr store.
     TMP_ROOT = pathlib.Path("/scratch-shared/mpierzyna1/")
     _wrf_tmp = _wrf.model_copy(
         update={
@@ -140,12 +142,6 @@ if env["machine"] == "snellius":
             "tmp_skip_teardown": True,  # leave symlink in place so Cn2 can postproc
         }
     )
-    _cn2_tmp = _cn2.model_copy(
-        update={
-            "tmp_work_root": TMP_ROOT,
-            "tmp_skip_teardown": True,
-        }
-    )
 
     p_snellius = Pipeline(
         wrf=_update_resources(
@@ -155,11 +151,14 @@ if env["machine"] == "snellius":
             mem_per_cpu="1750M",  # all the RAM
             walltime=datetime.timedelta(hours=10),
         ),
+        # Cn2 straight into the OTProf zarr store; its work dir (project storage) only holds the sim lock. Lay out the
+        # domain first (login node, metadata only): `wrf-massive store init-domain --stage cn2 sim_*` (needs one sim
+        # with WRF output). One worker per aux file (21 per sim), ≤ ~3 GB each -> 48 cores on genoa for the memory.
         cn2=_update_resources(
-            _cn2_tmp,
+            _cn2.model_copy(update={"store": otprof_store(env["store_path"], "baltics"), "n_workers": 21}),
             n_tasks=1,
             cpus_per_task=48,
-            mem_per_cpu="4000M",
-            walltime=datetime.timedelta(minutes=30),
+            mem_per_cpu="1750M",
+            walltime=datetime.timedelta(hours=1),
         ),
     )
