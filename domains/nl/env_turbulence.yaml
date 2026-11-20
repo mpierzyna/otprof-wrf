@@ -2,15 +2,16 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-machine: turbulence
+machine: dev
 
 wps:
-  wps_tmpl_dir: "/media/sukanta/HD3/max/WRFV4.5_Photonloop/submodules/WPS"
-  geog_data_path: "/home/sukanta/WRF/DATA/geogV4"
+  wps_tmpl_dir: "/tmp"  # placeholder
+  geog_data_path: "/tmp"  # placeholder
 
 wrf:
-  wrf_tmpl_dir: "/media/sukanta/HD3/max/WRFV4.5_Photonloop/submodules/WRF"
+  wrf_tmpl_dir: "/tmp"  # placeholder
 
-pipeline: "p_preproc"
-job_file: "slurm_turbulence.job.sh"
+pipeline: "p_dev"
 log_level: info
+
+store_path: "/data/pool/users/maximilian/otprof.zarr"

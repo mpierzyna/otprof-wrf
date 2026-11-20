@@ -5,7 +5,6 @@
 """Pipeline for 1-year WRF run over NL"""
 
 import datetime
-import logging
 import pathlib
 import random
 import string
@@ -106,6 +105,7 @@ _cn2 = OTProfCn2PostProcStage(
         ("EL_PBL", "bottom_top_stag"),
         "TSQ",
     ],
+    myoutfields_path="myoutfields.txt",
     postproc_fns=[fn_ct2_cn2, fn_int_water_paths],
     run_parallel=True,
     resources=Resources(n_tasks=1, cpus_per_task=8, mem_per_cpu="1GB"),
@@ -239,29 +239,33 @@ if env["machine"] == "snellius":
         # prjs1785 -> OTProf zarr store. Lay out first (login node, metadata only; template = first netCDF file):
         # `wrf-massive store init-domain --stage ingest sim_*`. One worker per file (21), ~1.3 GB each.
         ingest=IngestStage(
+            src=NetCDFStore(file_suffix="cn2", root="/projects/prjs1785/otprof/data/nl/wrf"),
+            src_dir="4_postproc",
             work_dir="5_ingest",  # sim lock only
-            src=NetCDFStore(file_suffix=_cn2.store.file_suffix, root="/projects/prjs1785/otprof/data/nl/wrf"),
-            src_dir=_cn2.work_dir,
             store=otprof_store(env["store_path"], "nl"),
+            crop=5,  # old postproc was uncropped
             run_parallel=True,
             n_workers=21,
             resources=Resources(
-                n_tasks=1, cpus_per_task=24, mem_per_cpu="1750M", walltime=datetime.timedelta(minutes=30)
+                n_tasks=1,
+                cpus_per_task=24,
+                mem_per_cpu="1750M",
+                walltime=datetime.timedelta(minutes=30),
             ),
         ),
     )
 
 
-if __name__ == "__main__":
-    logging.basicConfig(level="INFO")
-    sim = Simulation.from_disk("sim_2017-01-01")
-    p_dev = Pipeline(cn2=_cn2)
-    p_dev.run(sim, force_run=True)
-    # print(p["cn2"].get_inputs(s))
-    # p["cn2"].run_single(s, 0)
-
-    # p.run("cerra")
-    # p.run("cerra", force=True)
-    # p.run("wps")
-    # p.run("wrf", force=True)
-    # p.run("cn2", force=True)
+if env["machine"] == "dev":
+    p_dev = Pipeline(
+        ingest=IngestStage(
+            src=NetCDFStore(file_suffix="cn2"),
+            src_dir="4_postproc",
+            work_dir="5_ingest",  # sim lock only
+            store=otprof_store(env["store_path"], "nl"),
+            crop=5,  # previous postproc was uncropped
+            run_parallel=True,
+            n_workers=8,
+            resources=Resources(n_tasks=1, cpus_per_task=8, mem_per_cpu="1GB", walltime=datetime.timedelta(minutes=30))
+        ),
+    )

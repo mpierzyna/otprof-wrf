@@ -12,5 +12,6 @@ wrf:
   wrf_tmpl_dir: "/tmp"  # placeholder
 
 pipeline: "p_dev"
-# job_file: "slurm_snellius.sh"
 log_level: info
+
+store_path: "/data/pool/users/maximilian/otprof.zarr"

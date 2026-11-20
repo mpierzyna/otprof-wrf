@@ -74,6 +74,7 @@ _cn2 = OTProfCn2PostProcStage(
     work_dir="4_postproc",
     wrfout_dir=_wrf.work_dir,  # 3_wrf
     myoutfields_path=_wrf.myoutfields_path,  # checks at load time that WRF writes what is post-processed
+    crop=5,  # crop 5 grid points at each lateral boundary (WRF output is uncropped)
     domain=1,
     run_parallel=True,
     resources=Resources(n_tasks=1, cpus_per_task=8, mem_per_cpu="1GB"),
@@ -153,11 +154,16 @@ if env["machine"] == "snellius":
         ),
         # Cn2 straight into the OTProf zarr store; its work dir (project storage) only holds the sim lock. Lay out the
         # domain first (login node, metadata only): `wrf-massive store init-domain --stage cn2 sim_*` (needs one sim
-        # with WRF output). One worker per aux file (21 per sim), ≤ ~3 GB each -> 48 cores on genoa for the memory.
+        # with WRF output). One worker per aux file (21 per sim).
         cn2=_update_resources(
-            _cn2.model_copy(update={"store": otprof_store(env["store_path"], "baltics"), "n_workers": 21}),
+            _cn2.model_copy(
+                update={
+                    "store": otprof_store(env["store_path"], "baltics"),
+                    "n_workers": 21,
+                }
+            ),
             n_tasks=1,
-            cpus_per_task=48,
+            cpus_per_task=24,
             mem_per_cpu="1750M",
             walltime=datetime.timedelta(hours=1),
         ),

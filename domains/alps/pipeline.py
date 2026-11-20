@@ -76,6 +76,7 @@ _cn2 = OTProfCn2PostProcStage(
     work_dir="4_postproc",
     wrfout_dir=_wrf.work_dir,  # 3_wrf
     myoutfields_path=_wrf.myoutfields_path,  # checks at load time that WRF writes what is post-processed
+    crop=5,  # crop 5 grid points at each lateral boundary (WRF output is uncropped)
     domain=1,
     run_parallel=True,
     resources=Resources(n_tasks=1, cpus_per_task=8, mem_per_cpu="1GB"),
@@ -158,23 +159,16 @@ if env["machine"] == "snellius":
         # all run in one round. ~3.5 GB peak per worker (frame-wise postproc) -> 21 workers need ~74 GB, which on
         # genoa (1750M per core) means 48 cores; the extra cores are only allocated for their memory.
         cn2=_update_resources(
-            _cn2.model_copy(update={"n_workers": 21}),  # no tmp dir: 4_postproc lives on project storage
+            _cn2.model_copy(
+                update={
+                    "store": otprof_store(env["store_path"], "alps"),
+                    "n_workers": 21,
+                }
+            ),
             n_tasks=1,
             cpus_per_task=48,
             mem_per_cpu="1750M",
             walltime=datetime.timedelta(hours=1),
-        ),
-        # Cn2 netCDF output (4_postproc) -> OTProf zarr store. Lay out first (login node, metadata only):
-        # `wrf-massive store init-domain --stage ingest sim_*`. One worker per file (21), ~2 GB each for alps ->
-        # 48 cores for the memory, as for cn2.
-        ingest=IngestStage(
-            work_dir="5_ingest",  # sim lock only
-            src=NetCDFStore(file_suffix=_cn2.store.file_suffix),
-            src_dir=_cn2.work_dir,
-            store=otprof_store(env["store_path"], "alps"),
-            run_parallel=True,
-            n_workers=21,
-            resources=Resources(n_tasks=1, cpus_per_task=48, mem_per_cpu="1750M", walltime=datetime.timedelta(hours=1)),
         ),
     )
 
