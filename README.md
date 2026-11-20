@@ -67,7 +67,7 @@ Stage names are those of the pipeline selected in `env.yaml` (`pipeline.py`), e.
 
 On Snellius, the post-processed output of all domains goes into one zarr store for ML training (`store_path` in
 `env_snellius.yaml`, one group per domain; settings shared by all domains in `src/otprof_wrf/store.py`, design and
-benchmarks in `submodules/wrf-massive/src/wrf_massive/store/DESIGN.md`):
+benchmarks in `submodules/wrf-massive/src/wrf_massive/store/DESIGN.md`, usage in its `README.md`):
 
 - baltics, pyrenees: the `cn2` stage writes straight into the store.
 - alps, nl, canaries: the `ingest` stage copies the existing netCDF output (alps: `sim_*/4_postproc`; nl, canaries:
