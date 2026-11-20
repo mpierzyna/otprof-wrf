@@ -104,7 +104,6 @@ _cn2 = OTProfCn2PostProcStage(
         "TSQ",
     ],
     postproc_fns=[fn_ct2_cn2, fn_int_water_paths],
-    compression=True,
     run_parallel=True,
     resources=Resources(n_tasks=1, cpus_per_task=8, mem_per_cpu="1GB"),
 )

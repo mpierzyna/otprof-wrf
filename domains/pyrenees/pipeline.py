@@ -74,7 +74,6 @@ _cn2 = OTProfCn2PostProcStage(
     wrfout_dir=_wrf.work_dir,  # 3_wrf
     myoutfields_path=_wrf.myoutfields_path,  # checks at load time that WRF writes what is post-processed
     domain=1,
-    compression=True,
     run_parallel=True,
     resources=Resources(n_tasks=1, cpus_per_task=8, mem_per_cpu="1GB"),
 )
