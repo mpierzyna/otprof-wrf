@@ -190,11 +190,14 @@ if env["machine"] == "snellius":
             walltime=datetime.timedelta(minutes=15),
         ),
         # Cn2 netCDF output of this (closed) campaign, kept read-only in the old workspace on project storage
-        # prjs1785 -> OTProf zarr store. Lay out first (login node, metadata only; template = first netCDF file):
-        # `wrf-massive store init-domain --stage ingest sim_*`. One worker per file (21), ~1.3 GB each.
+        # prjs1785 -> OTProf zarr store. Lay out first (login node, metadata only): `wrf-massive store init-domain
+        # -s ingest <one sim>` (template = its first netCDF file), then `wrf-massive store alloc-sims -s ingest sim_*`.
+        # One worker per file (21), ~1.3 GB each.
         ingest=IngestStage(
             work_dir="5_ingest",  # sim lock only
-            src=NetCDFStore(file_suffix=_cn2.store.file_suffix, root="/projects/prjs1785/otprof/data/canaries/wrf"),
+            src=NetCDFStore(
+                file_suffix=_cn2.store.file_suffix, sims_root="/projects/prjs1785/otprof/data/canaries/wrf"
+            ),
             src_dir=_cn2.work_dir,
             store=otprof_store(env["store_path"], "canaries"),
             run_parallel=True,

@@ -2683,7 +2683,7 @@ wheels = [
 
 [[package]]
 name = "wrf-massive"
-version = "2.4.0"
+version = "2.4.1"
 source = { editable = "submodules/wrf-massive" }
 dependencies = [
     { name = "cartopy" },

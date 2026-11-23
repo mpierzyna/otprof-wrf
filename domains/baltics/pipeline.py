@@ -153,8 +153,8 @@ if env["machine"] == "snellius":
             walltime=datetime.timedelta(hours=10),
         ),
         # Cn2 straight into the OTProf zarr store; its work dir (project storage) only holds the sim lock. Lay out the
-        # domain first (login node, metadata only): `wrf-massive store init-domain --stage cn2 sim_*` (needs one sim
-        # with WRF output). One worker per aux file (21 per sim).
+        # domain first (login node, metadata only): `wrf-massive store init-domain -s cn2 <one sim with WRF output>`,
+        # then `wrf-massive store alloc-sims -s cn2 sim_*`. One worker per aux file (21 per sim).
         cn2=_update_resources(
             _cn2.model_copy(
                 update={

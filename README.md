@@ -75,7 +75,8 @@ benchmarks in `submodules/wrf-massive/src/wrf_massive/store/DESIGN.md`, usage in
 
 ```bash
 cd domains/baltics
-uv run wrf-massive store init-domain --stage cn2 sim_*  # once per domain/new sims (login node, metadata only)
+uv run wrf-massive store init-domain -s cn2 sim_<one>   # once per domain, from one sim with output (login node)
+uv run wrf-massive store alloc-sims -s cn2 sim_*        # new sims (login node, metadata only)
 uv run wrf-massive submit -s cn2 sim_*                  # (alps/nl/canaries: --stage ingest / -s ingest)
 uv run wrf-massive store verify --stage cn2             # frames written per sim
 uv run wrf-massive store pull <remote>:<store_path> ~/data/otprof.zarr --domain alps --vars cn2,z  # partial copy
