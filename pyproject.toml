@@ -10,7 +10,7 @@ authors = [
     { name = "Maximilian Pierzyna" },
 ]
 dependencies = [
-    "wrf_massive[postproc,store]",  # otprof_wrf builds on its stages (Cn2 postprocessing) and its zarr store
+    "wrf_massive[postproc,store,viewer]", 
 ]
 
 [dependency-groups]
