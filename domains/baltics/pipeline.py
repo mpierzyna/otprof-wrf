@@ -149,7 +149,7 @@ if env["machine"] == "snellius":
             _wrf_tmp,
             n_tasks=128,
             cpus_per_task=1,
-            mem_per_cpu="1750M",  # all the RAM
+            mem_per_cpu="500M",  # 64 GB is sufficient
             walltime=datetime.timedelta(hours=10),
         ),
         # Cn2 straight into the OTProf zarr store; its work dir (project storage) only holds the sim lock. Lay out the
@@ -165,6 +165,6 @@ if env["machine"] == "snellius":
             n_tasks=1,
             cpus_per_task=24,
             mem_per_cpu="1750M",
-            walltime=datetime.timedelta(hours=1),
+            walltime=datetime.timedelta(minutes=15),
         ),
     )
